@@ -27,11 +27,11 @@ void setup()
 
   pinMode(9, OUTPUT); //For Sensor XShut
   pinMode(10, OUTPUT); //For Sensor2 XShut
-  pinMode(11, OUTPUT);
+  pinMode(11, OUTPUT); //For Sensor3 XShut
  
   digitalWrite(9, LOW); //Shutting sensor down
   digitalWrite(10, LOW); //Shutting sensor2 down
-  digitalWrite(11, LOW);
+  digitalWrite(11, LOW); //Shutting sensor3 down
  
   delay(500);
   Wire.begin(); //Start SDA
