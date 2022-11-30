@@ -1,0 +1,65 @@
+#include <Wire.h>
+#include <VL53L0X.h>
+#include <VL53L1X.h>
+
+VL53L1X sensor3;
+VL53L0X sensor;
+VL53L0X sensor2;
+
+void setup() {
+  // put your setup code here, to run once:
+  
+  pinMode(9, OUTPUT); //For Sensor XShut
+  pinMode(10, OUTPUT); //For Sensor2 XShut
+  pinMode(11, OUTPUT);
+ 
+  digitalWrite(9, LOW); //Shutting sensor down
+  digitalWrite(10, LOW); //Shutting sensor2 down
+  digitalWrite(11, LOW);
+
+  delay(500);
+  Wire.begin(); //Start SDA
+  Wire.setClock(400000);
+
+  Serial.begin (19200); //Setting rate
+
+  //SENSOR
+  //This is used to initiate one of the Vl53L0X and then re-address it so it can be singlely addressed. 
+  pinMode(9, INPUT);
+  delay(150);
+  sensor.init(true);
+  delay(100);
+  sensor.setAddress((uint8_t)22); //gives address 16
+
+  //SENSOR 2
+  pinMode(10, INPUT);
+  delay(150);
+  sensor2.init(true);
+  delay(100);
+  sensor2.setAddress((uint8_t)25); //gives address of 19
+
+  //SENSOR 3
+  pinMode(11, INPUT);
+  delay(150);
+  sensor3.init(true);
+  delay(100);
+  sensor3.setAddress((uint8_t)28); //gives address of 19
+  sensor3.setDistanceMode(VL53L1X::Medium);
+
+  //Sets the maximum time to wait for data from the sensors. 
+  sensor.setTimeout(500);
+  sensor2.setTimeout(500);
+  sensor3.setTimeout(500);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  long DISTANCE_L = (sensor.readRangeSingleMillimeters());
+  long DISTANCE_R = (sensor2.readRangeSingleMillimeters());
+  long DISTANCE_F = (sensor3.readRangeSingleMillimeters());
+    
+
+
+
+
+}
