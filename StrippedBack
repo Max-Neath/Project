@@ -57,8 +57,20 @@ void loop() {
   long DISTANCE_L = (sensor.readRangeSingleMillimeters());
   long DISTANCE_R = (sensor2.readRangeSingleMillimeters());
   long DISTANCE_F = (sensor3.readRangeSingleMillimeters());
-    
-
+ 
+ /*This is for finding the correct turns.
+ if(found_left){
+   return 'L';
+ } 
+ else if(found_straight){
+   return 'S';
+ }
+ else if(found_right){
+   return 'R';
+ }
+ else {
+   return 'B';
+ }
 
 
 
