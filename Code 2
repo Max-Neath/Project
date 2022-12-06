@@ -252,7 +252,7 @@ void loop() {
 
     int power_difference = proportional/20 + integral/10000 +derivative*3/2;
 
-    const int max = 100;
+    const int max = 50;
 
     if(power_difference > max) {
       power_difference = max;
