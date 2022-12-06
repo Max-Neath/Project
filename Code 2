@@ -1,0 +1,294 @@
+#include <Wire.h>
+#include <VL53L0X.h>
+#include <VL53L1X.h>
+
+VL53L1X sensor3;
+VL53L0X sensor;
+VL53L0X sensor2;
+
+// Motor 1 - Left
+int pwmA = 4; //PWM Out
+int in1A = 2; //For Forward
+int in2A = 3; //For Back
+int MotorSpeedA = 0; // Motor Speed
+
+// Motor 2 - Right 
+int pwmB = 7; //PWM Out
+int in1B = 5; //For Forward
+int in2B = 6; //For Back
+int MotorSpeedB = 0; // Motor Speed
+int straightTrue = 0; // Variable that determines whether the straight path is available. 
+
+void setup() {
+  // put your setup code here, to run once:
+  
+  pinMode(9, OUTPUT); //For Sensor XShut
+  pinMode(10, OUTPUT); //For Sensor2 XShut
+  pinMode(11, OUTPUT);
+ 
+  digitalWrite(9, LOW); //Shutting sensor down
+  digitalWrite(10, LOW); //Shutting sensor2 down
+  digitalWrite(11, LOW);
+
+  delay(500);
+  Wire.begin(); //Start SDA
+  Wire.setClock(400000);
+
+  Serial.begin (19200); //Setting rate
+
+  //SENSOR
+  //This is used to initiate one of the Vl53L0X and then re-address it so it can be singlely addressed. 
+  pinMode(9, INPUT);
+  delay(150);
+  sensor.init(true);
+  delay(100);
+  sensor.setAddress((uint8_t)22); //gives address 16
+
+  //SENSOR 2
+  pinMode(10, INPUT);
+  delay(150);
+  sensor2.init(true);
+  delay(100);
+  sensor2.setAddress((uint8_t)25); //gives address of 19
+
+  //SENSOR 3
+  pinMode(11, INPUT);
+  delay(150);
+  sensor3.init(true);
+  delay(100);
+  sensor3.setAddress((uint8_t)28); //gives address of 19
+  sensor3.setDistanceMode(VL53L1X::Medium);
+
+  //Sets the maximum time to wait for data from the sensors. 
+  sensor.setTimeout(500);
+  sensor2.setTimeout(500);
+  sensor3.setTimeout(500);
+
+  //Setting Pins for MOTORA
+  pinMode(pwmA, OUTPUT);
+  pinMode(in1A, OUTPUT);
+  pinMode(in2A, OUTPUT);
+  
+  //Setting Pins for MOTORB
+  pinMode(pwmB, OUTPUT);
+  pinMode(in1B, OUTPUT);
+  pinMode(in2B, OUTPUT);
+}
+
+void right_turn () {
+  straightTrue = 0;
+  // Setting Pins for motor A
+  digitalWrite(in1A, HIGH);
+  digitalWrite(in2A, LOW);
+  
+  // Setting Pins for motor B
+  digitalWrite(in1B, LOW);
+  digitalWrite(in2B, HIGH);
+
+  MotorSpeedA = 100;
+  MotorSpeedB = 100;
+
+  analogWrite(pwmA, MotorSpeedA);
+  analogWrite(pwmB, MotorSpeedB);
+
+  delay(1000);
+
+  // Setting Pins for motor A
+  digitalWrite(in1A, HIGH);
+  digitalWrite(in2A, LOW);
+  
+  // Setting Pins for motor B
+  digitalWrite(in1B, HIGH);
+  digitalWrite(in2B, LOW);
+
+  MotorSpeedA = 0;
+  MotorSpeedB = 0;
+
+  analogWrite(pwmA, MotorSpeedA);
+  analogWrite(pwmB, MotorSpeedB);
+}
+
+void left_turn(){
+  straightTrue = 0;
+  // Setting Pins for motor A
+  digitalWrite(in1A, LOW);
+  digitalWrite(in2A, HIGH);
+  
+  // Setting Pins for motor B
+  digitalWrite(in1B, HIGH);
+  digitalWrite(in2B, LOW);
+
+  MotorSpeedA = 100;
+  MotorSpeedB = 100;
+
+  analogWrite(pwmA, MotorSpeedA);
+  analogWrite(pwmB, MotorSpeedB);
+
+  delay(1000);
+
+  // Setting Pins for motor A
+  digitalWrite(in1A, HIGH);
+  digitalWrite(in2A, LOW);
+  
+  // Setting Pins for motor B
+  digitalWrite(in1B, HIGH);
+  digitalWrite(in2B, LOW);
+
+  MotorSpeedA = 0;
+  MotorSpeedB = 0;
+
+  analogWrite(pwmA, MotorSpeedA);
+  analogWrite(pwmB, MotorSpeedB);  
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  long DISTANCE_L = (sensor.readRangeSingleMillimeters());
+  long DISTANCE_R = (sensor2.readRangeSingleMillimeters());
+  long DISTANCE_F = (sensor3.readRangeSingleMillimeters());
+  
+  Serial.print("Distance L: ");
+  Serial.println(DISTANCE_L);
+  Serial.println("_________________________________");
+  Serial.println("");
+
+  Serial.print("Distance R: ");
+  Serial.println(DISTANCE_R);
+  Serial.println("_________________________________");
+  Serial.println("");  
+  
+  Serial.print("Distance F: ");
+  Serial.println(DISTANCE_F);
+  Serial.println("_________________________________");
+  Serial.println("");
+  
+  if (DISTANCE_L > 2000) {
+    DISTANCE_L = 2000;
+  }
+
+  if (DISTANCE_R > 2000) {
+    DISTANCE_R = 2000;
+  }
+
+  if (DISTANCE_F > 300000) {
+    DISTANCE_F = 300000;
+  }
+
+  if(DISTANCE_L < 150 && DISTANCE_R < 150 && DISTANCE_F < 150)
+  {
+	// There is no line visible ahead, and we didn't see any
+	// intersection.  Must be a dead end to the left and to the right.
+    Serial.print("Dead end on two sides");
+    
+    MotorSpeedA = 0;
+    MotorSpeedB = 0;
+
+    analogWrite(pwmA, MotorSpeedA);
+    analogWrite(pwmB, MotorSpeedB);
+
+    delay(100);
+
+    right_turn();
+	} 
+
+  if(DISTANCE_L > 150 && DISTANCE_R > 150) {
+  // Found an open to the left.
+    Serial.print("Left side open"); 
+
+    MotorSpeedA = 0;
+    MotorSpeedB = 0;
+
+    analogWrite(pwmA, MotorSpeedA);
+    analogWrite(pwmB, MotorSpeedB);
+
+    delay(100);
+    left_turn();
+  
+  } 
+
+  if(DISTANCE_L < 150 && DISTANCE_R < 150 && DISTANCE_F < 150)
+  {
+	  // There is no line visible ahead, and we didn't see any
+	  // intersection.  Must be a dead end to the left and to the right.
+    Serial.print("Dead end on two sides");
+    
+    MotorSpeedA = 0;
+    MotorSpeedB = 0;
+
+    analogWrite(pwmA, MotorSpeedA);
+    analogWrite(pwmB, MotorSpeedB);
+
+    delay(100);
+
+    right_turn();
+	}
+
+
+  if(DISTANCE_F > 150) {
+    straightTrue = 1;
+    Serial.print("Forward free");
+    
+    MotorSpeedA = 80;
+    MotorSpeedB = 80;
+    
+    analogWrite(pwmA, MotorSpeedA);
+    analogWrite(pwmB, MotorSpeedB); 
+
+    delay(100);
+  }
+
+  while (straightTrue == 1) {
+    int last_proportional = 0;
+    long integral = 0;
+
+    int DIFFERENCE = DISTANCE_R - DISTANCE_L;
+
+    int proportional = DIFFERENCE;
+
+    int derivative = proportional - last_proportional;
+    integral += proportional;
+
+    last_proportional = proportional;
+
+    int power_difference = proportional/20 + integral/10000 +derivative*3/2;
+
+    const int max = 100;
+
+    if(power_difference > max) {
+      power_difference = max;
+    }
+    else if(power_difference < -max) {
+      power_difference = -max;
+    } 
+
+    if (power_difference < 0) {
+      MotorSpeedA = max + power_difference;
+      MotorSpeedB = max;
+      analogWrite(pwmA, MotorSpeedA);
+      analogWrite(pwmB, MotorSpeedB);      
+    } 
+
+    else {
+      MotorSpeedA = max;
+      MotorSpeedB = max - power_difference;
+      analogWrite(pwmA, MotorSpeedA);
+      analogWrite(pwmB, MotorSpeedB);
+    } 
+
+    straightTrue=0;  
+  }
+
+  //if(DISTANCE_F > 150 && DISTANCE_L > 150 && DISTANCE_R > 150){
+    //Serial.print("Forward free");
+    
+    //MotorSpeedA = 80;
+    //MotorSpeedB = 80;
+    
+    //analogWrite(pwmA, MotorSpeedA);
+    //analogWrite(pwmB, MotorSpeedB);
+
+    //delay(100);     
+  //}
+
+}
+
