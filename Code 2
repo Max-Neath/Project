@@ -174,23 +174,6 @@ void loop() {
     DISTANCE_F = 300000;
   }
 
-  if(DISTANCE_L < 150 && DISTANCE_R < 150 && DISTANCE_F < 150)
-  {
-	// There is no line visible ahead, and we didn't see any
-	// intersection.  Must be a dead end to the left and to the right.
-    Serial.print("Dead end on two sides");
-    
-    MotorSpeedA = 0;
-    MotorSpeedB = 0;
-
-    analogWrite(pwmA, MotorSpeedA);
-    analogWrite(pwmB, MotorSpeedB);
-
-    delay(100);
-
-    right_turn();
-	} 
-
   if(DISTANCE_L > 150 && DISTANCE_R > 150) {
   // Found an open to the left.
     Serial.print("Left side open"); 
@@ -227,22 +210,26 @@ void loop() {
   if(DISTANCE_F > 150) {
     straightTrue = 1;
     Serial.print("Forward free");
-    
+    /*
     MotorSpeedA = 80;
     MotorSpeedB = 80;
     
     analogWrite(pwmA, MotorSpeedA);
     analogWrite(pwmB, MotorSpeedB); 
-
+*/
     delay(100);
   }
 
   while (straightTrue == 1) {
     int last_proportional = 0;
     long integral = 0;
+	int Delta;
+	int K = 1;
 
     int DIFFERENCE = DISTANCE_R - DISTANCE_L;
-
+	
+	int Delta = K * DIFFERENCE;
+/*
     int proportional = DIFFERENCE;
 
     int derivative = proportional - last_proportional;
@@ -250,10 +237,35 @@ void loop() {
 
     last_proportional = proportional;
 
-    int power_difference = proportional/20 + integral/10000 +derivative*3/2;
+    int power_difference = proportional/20 + integral/10000 +derivative*3/2;*/
+	
+	
 
     const int max = 50;
-
+	
+	if (Delta < 0){
+		MotorSpeedA = (max - delta);
+		MotorSpeedB = (max + delta);
+		analogWrite(pwmA, MotorSpeedA);
+		analogWrite(pwmB, MotorSpeedB);  
+		
+	}
+	if else (Delta > 0){
+		MotorSpeedA = (max + delta);
+		MotorSpeedB = (max - delta);
+		analogWrite(pwmA, MotorSpeedA);
+		analogWrite(pwmB, MotorSpeedB);  
+		
+	}
+	else {
+		MotorSpeedA = (max);
+		MotorSpeedB = (max);
+		analogWrite(pwmA, MotorSpeedA);
+		analogWrite(pwmB, MotorSpeedB);  
+		
+	}
+	
+/*
     if(power_difference > max) {
       power_difference = max;
     }
@@ -274,21 +286,10 @@ void loop() {
       analogWrite(pwmA, MotorSpeedA);
       analogWrite(pwmB, MotorSpeedB);
     } 
-
+*/
     straightTrue=0;  
   }
 
-  //if(DISTANCE_F > 150 && DISTANCE_L > 150 && DISTANCE_R > 150){
-    //Serial.print("Forward free");
-    
-    //MotorSpeedA = 80;
-    //MotorSpeedB = 80;
-    
-    //analogWrite(pwmA, MotorSpeedA);
-    //analogWrite(pwmB, MotorSpeedB);
-
-    //delay(100);     
-  //}
+  
 
 }
-
