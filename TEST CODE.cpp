@@ -89,79 +89,44 @@ void loop()
   long DISTANCE_L = (sensor.readRangeSingleMillimeters());
   long DISTANCE_R = (sensor2.readRangeSingleMillimeters());
   long DISTANCE_F = (sensor3.readRangeSingleMillimeters());
-	
-	if DISTANCE_F < 1000 {
-		digitalWrite(BLUE, LOW);
-		delay(200);
-		digitalWrite(BLUE, HIGH);
-		delay(200);
-	}
-	if DISTANCE_L < 1000 {
-		digitalWrite(GREEN, LOW);
-		delay(200);
-		digitalWrite(GREEN, HIGH);
-		delay(200);
-	}
-	if DISTANCE_R < 1000 {
-		digitalWrite(RED, LOW);
-		delay(200);
-		digitalWrite(RED, HIGH);
-		delay(200);
-	}
- // Read potentiometer and convert to range of 0-255
-  MotorSpeedA = 100;
-  MotorSpeedB = 100;
+  
+  if (DISTANCE_F < 50) {digitalWrite(BLUE, HIGH);}
+  else {digitalWrite(BLUE, LOW);}
+ 
+  if (DISTANCE_L < 50) {digitalWrite(GREEN, HIGH);}
+  else {digitalWrite(GREEN, LOW);}
+  
+  if (DISTANCE_R < 50) {digitalWrite(RED, HIGH);}
+  else {digitalWrite(RED, LOW);}
 
- // Set Motor A forward
-  digitalWrite(in1A, LOW);
-  digitalWrite(in2A, LOW);
-  
- // Set Motor B forward
-  digitalWrite(in1B, LOW);
-  digitalWrite(in2B, LOW);  
-  
-  delay(500)
-  
-   // Set Motor A forward
-  digitalWrite(in1A, HIGH);
-  digitalWrite(in2A, LOW);
-  delay(200);
-  
-  digitalWrite(in1A, LOW);
-  digitalWrite(in2A, LOW);
-  delay(200);
-  
-  digitalWrite(in1A, LOW);
-  digitalWrite(in2A, HIGH);
-  delay(200);
-  
-  digitalWrite(in1A, LOW);
-  digitalWrite(in2A, LOW);
-  delay(200);
-  
-  digitalWrite(in1B, HIGH);
-  digitalWrite(in2B, LOW);  
-  delay(200)
-  
-  digitalWrite(in1B, LOW);
-  digitalWrite(in2B, LOW);  
-  delay(200)
-  
-  digitalWrite(in1B, LOW);
-  digitalWrite(in2B, HIGH);  
-  delay(200)
-  
-  digitalWrite(in1B, LOW);
-  digitalWrite(in2B, LOW);  
-  delay(200)
-  
-  for(int i = 0; i<5; i++){
-	  	digitalWrite(BLUE, LOW);
-		delay(50);
-		digitalWrite(BLUE, HIGH);
-		delay(50);
-	  
-  }
 
-	
+  Serial.print("Distance L: ");
+  Serial.println(DISTANCE_L);
+  Serial.println("_________________________________");
+  Serial.println("");
+
+  Serial.print("Distance R: ");
+  Serial.println(DISTANCE_R);
+  Serial.println("_________________________________");
+  Serial.println("");  
+  
+  Serial.print("Distance F: ");
+  Serial.println(DISTANCE_F);
+  Serial.println("_________________________________");
+  Serial.println("");
+
+digitalWrite(in1A, HIGH);
+digitalWrite(in2A, LOW);
+
+digitalWrite(in1B, LOW);
+digitalWrite(in2B, HIGH);    
+    
+MotorSpeedA = 100;
+MotorSpeedB = 100;
+    
+analogWrite(pwmA, MotorSpeedA);
+analogWrite(pwmB, MotorSpeedB); 
+
+
+  
 }
